@@ -71,25 +71,29 @@ class App extends Component {
         })
       })
       .then(response => response.json())
-      
-      //PUT req to update entry count
-      .then(response => {
-        if (response) {
-          fetch('http://localhost:8081/image', {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-              id: this.state.user.id
+      .then(data => {
+        //if there's data (not null) + image
+        if (data && data.image) {
+          this.setState({imageURL: data.image});
+            
+            //update entry counter
+            fetch('http://localhost:8081/image', {
+              method: 'put',
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({
+                id: this.state.user.id
+              })
             })
-          })
-          .then(response => response.json())
-          .then(count => {
-            this.setState(Object.assign(this.state.user, { entries: count }))
-          })
-          .catch(console.log)
-        }
-      })
-      .catch((err) => console.log(err));
+            .then(response => response.json())
+            .then(count => {
+              this.setState(Object.assign(this.state.user, { entries: count }))
+            })
+            .catch((err) => console.log('Error updating count:', err));
+          } else {
+            console.log('Error loading image:', data);
+          }
+        })
+        .catch((err) => console.log('Error loading image:', err));
   }
 
 
