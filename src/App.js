@@ -18,50 +18,10 @@ import './App.css';
 6) load user + route change home
 */
 
-//function to receive user input imageURL -> convert to JSON request
-const returnClarifaiRequestOptions = (imageURL) => {
-  // Your PAT (Personal Access Token) can be found in the portal under Authentification
-  const PAT = 'b348af3126e242aa9184c9815391bd28';
-  // Specify the correct user_id/app_id pairings
-  // Since you're making inferences outside your app's scope
-  const USER_ID = 'loj1';       
-  const APP_ID = 'my-first-application';
-  // Change these to whatever model and image URL you want to use
-  const MODEL_ID = 'face-detection';  
-  const IMAGE_URL = imageURL;
-
-  //converting user input to raw json stringify
-  const raw = JSON.stringify({
-    "user_app_id": {
-        "user_id": USER_ID,
-        "app_id": APP_ID
-    },
-    "inputs": [
-        {
-            "data": {
-                "image": {
-                    "url": IMAGE_URL
-                }
-            }
-        }
-    ]
-  });
-
-  //return request message format w/ image URL
-  const requestOptions = {
-    method: 'POST',
-    headers: {
-        'Accept': 'application/json',
-        'Authorization': 'Key ' + PAT
-    },
-    body: raw
-  };
-}
-
+//Set initial state for home page
 const initialState = {
   input: '',//what the user will input
   imageURL: '',//imageURL should be displayed when clicked onbuttonsubmit
-  box: {},
   route: 'signin', //keeps track of which page user is in(app starts on signin page)
   isSignedIn: false,
       //when user joins -> these will be updated in server -> DB
@@ -79,9 +39,6 @@ class App extends Component {
     super();
     this.state = initialState;
     }
-  
-
-
 
   //update state w/ user that's received
   loadUser = (data) => {
@@ -92,27 +49,6 @@ class App extends Component {
       entries: data.entries,
       joined: data.joined
     }})
-  }
-
-  //return object for box(4 dots to wrap with border)
-  calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box
-    const image = document.getElementById('inputimage');
-    const width = Number(image.width);
-    const height = Number(image.height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
-  }
-  //left_col is percentage of width, top row percentage of height
-  //rightCol total width - right col percentage
-  //bottom row = total height - bottom percentage
-
-  displayFaceBox = (box) => {
-    this.setState({box: box});
   }
 
   //property of App: receive an event when input changes
@@ -126,9 +62,17 @@ class App extends Component {
   onButtonSubmit = () => {
     this.setState({imageURL: this.state.input});//update imageURL variable w/ input from imagelinkform -> pass imageURL to facerecognition
 
-    //if no NPM package and if no GRPC NPM package(lowering dependencies)
-    // app.models.predict('face-detection', this.state.input)
-    fetch("https://api.clarifai.com/v2/models/" + 'face-detection' + "/outputs", returnClarifaiRequestOptions(this.state.input))
+    //POST request openai API
+      fetch('http://localhost:8081/imageURL', {
+        method: 'post',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          input: this.state.input
+        })
+      })
+      .then(response => response.json())
+      
+      //PUT req to update entry count
       .then(response => {
         if (response) {
           fetch('http://localhost:8081/image', {
@@ -144,12 +88,10 @@ class App extends Component {
           })
           .catch(console.log)
         }
-    
-        this.displayFacebox(this.calculateFaceLocation(response))
       })
       .catch((err) => console.log(err));
   }
-//once receive response -> calculate face location -> display facebox
+
 
   onRouteChange = (route) => {
     if (route === 'signout') {
@@ -163,7 +105,7 @@ class App extends Component {
   //dynamically use route -> route is what we give it
 
   render() {
-    // const { isSignedIn, imageURL, route, box } = is.state;
+    // const { isSignedIn, imageURL, route } = is.state;
     return (
       <div className="App">
         <ParticlesBg className='particles' num={100} type="cobweb" bg={true} />
@@ -173,7 +115,7 @@ class App extends Component {
               <Logo />
               <Rank name={this.state.user.name} entries={this.state.user.entries}/>
               <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-              <FaceRecognition box={this.state.box} imageURL={this.state.imageURL}/> 
+              <FaceRecognition imageURL={this.state.imageURL}/> 
             </div>
           : (
             this.state.route === 'signin'
