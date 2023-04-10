@@ -3,7 +3,7 @@ import ParticlesBg from 'particles-bg';
 import Navigation from './components/Navigation/Navigation';
 import Logo from './components/Logo/Logo';
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm'
-import FaceRecognition from './components/FaceRecognition/FaceRecognition'
+import ImageArea from './components/ImageArea/ImageArea'
 import Rank from './components/Rank/Rank';
 import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
@@ -59,42 +59,93 @@ class App extends Component {
   }
 
   //click event to submit
-  onButtonSubmit = () => {
-    this.setState({imageURL: this.state.input});//update imageURL variable w/ input from imagelinkform -> pass imageURL to facerecognition
+  onButtonSubmit = async () => {
+    this.setState({imageURL: this.state.input});//update imageURL variable w/ input from imagelinkform -> pass image text to imageArea
+    
+    const button = document.querySelector('button');
+    button.disabled = true;
+    button.innerHTML = 'Generating... <span class="spinner">🧠</span>';
 
     //POST request openai API
-      fetch('http://localhost:8081/imageURL', {
+    try {
+      const response = await fetch('http://localhost:8081/imageURL', {
         method: 'post',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
           input: this.state.input
         })
       })
-      .then(response => response.json())
-      .then(data => {
-        //if there's data (not null) + image
-        if (data && data.image) {
-          this.setState({imageURL: data.image});
-            
-            //update entry counter
-            fetch('http://localhost:8081/image', {
-              method: 'put',
-              headers: {'Content-Type': 'application/json'},
-              body: JSON.stringify({
-                id: this.state.user.id
-              })
-            })
-            .then(response => response.json())
-            .then(count => {
-              this.setState(Object.assign(this.state.user, { entries: count }))
-            })
-            .catch((err) => console.log('Error updating count:', err));
-          } else {
-            console.log('Error loading image:', data);
-          }
-        })
-        .catch((err) => console.log('Error loading image:', err));
+
+      const data = await response.json();
+
+      if(data && data.image) {
+        this.setState({imageURL: data.image});
+        const updateResponse = await fetch('http://localhost:8081/image', {
+          method: 'put',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
+        });
+
+        const count = await updateResponse.json();
+        this.setState(Object.assign(this.state.user, { entries: count }));
+      } else {
+        alert(console.log('Error loading image:', data));
+      }
+    } catch (err) {
+      alert(console.log('Error loading image:', err));
+    }
+    button.disabled = false;
+    button.innerHTML = 'Generate';
   }
+  // onButtonSubmit = () => {
+  //   this.setState({imageURL: this.state.input});//update imageURL variable w/ input from imagelinkform -> pass imageURL to facerecognition
+    
+  //   const button = document.querySelector('button');
+  //   button.disabled = true;
+  //   button.innerHTML = 'Generating... <span class="spinner">🧠</span>';
+  //   //POST request openai API
+  //     fetch('http://localhost:8081/imageURL', {
+  //       method: 'post',
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: JSON.stringify({
+  //         input: this.state.input
+  //       })
+  //     })
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       //if there's data (not null) + image
+  //       if (data && data.image) {
+  //         this.setState({imageURL: data.image});
+            
+  //           //update entry counter
+  //           fetch('http://localhost:8081/image', {
+  //             method: 'put',
+  //             headers: {'Content-Type': 'application/json'},
+  //             body: JSON.stringify({
+  //               id: this.state.user.id
+  //             })
+  //           })
+  //           .then(response => response.json())
+  //           .then(count => {
+  //             this.setState(Object.assign(this.state.user, { entries: count }));
+  //             button.disabled = false;
+  //             button.innerHTML = 'Generate';
+  //           })
+  //           .catch((err) => console.log('Error updating count:', err));
+  //         } else {
+  //           console.log('Error loading image:', data);
+  //           button.disabled = false;
+  //           button.innerHTML = 'Generate';
+  //         }
+  //       })
+  //       .catch((err) => {console.log('Error loading image:', err)
+  //       button.disabled = false;
+  //       button.innerHTML = 'Generate';
+  //       });
+  // }
+
 
 
   onRouteChange = (route) => {
@@ -119,7 +170,7 @@ class App extends Component {
               <Logo />
               <Rank name={this.state.user.name} entries={this.state.user.entries}/>
               <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-              <FaceRecognition imageURL={this.state.imageURL}/> 
+              <ImageArea imageURL={this.state.imageURL}/> 
             </div>
           : (
             this.state.route === 'signin'
