@@ -21,7 +21,7 @@ import './App.css';
 //Set initial state for home page
 const initialState = {
   input: '',//what the user will input
-  imageURL: '',//imageURL should be displayed when clicked onbuttonsubmit
+  imagePrompt: '',//imagePrompt should be displayed when clicked onbuttonsubmit
   route: 'signin', //keeps track of which page user is in(app starts on signin page)
   isSignedIn: false,
       //when user joins -> these will be updated in server -> DB
@@ -60,7 +60,7 @@ class App extends Component {
 
   //click event to submit
   onButtonSubmit = async () => {
-    this.setState({imageURL: this.state.input});//update imageURL variable w/ input from imagelinkform -> pass image text to imageArea
+    this.setState({imagePrompt: this.state.input});//update imagePrompt variable w/ input from imagelinkform -> pass image text to imageArea
     
     const button = document.querySelector('button');
     button.disabled = true;
@@ -68,7 +68,7 @@ class App extends Component {
 
     //POST request openai API
     try {
-      const response = await fetch('http://localhost:8081/imageURL', {
+      const response = await fetch('http://localhost:8081/imagePrompt', {
         method: 'post',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -79,7 +79,7 @@ class App extends Component {
       const data = await response.json();
 
       if(data && data.image) {
-        this.setState({imageURL: data.image});
+        this.setState({imagePrompt: data.image});
         const updateResponse = await fetch('http://localhost:8081/image', {
           method: 'put',
           headers: {'Content-Type': 'application/json'},
@@ -100,13 +100,13 @@ class App extends Component {
     button.innerHTML = 'Generate';
   }
   // onButtonSubmit = () => {
-  //   this.setState({imageURL: this.state.input});//update imageURL variable w/ input from imagelinkform -> pass imageURL to facerecognition
+  //   this.setState({imagePrompt: this.state.input});//update imagePrompt variable w/ input from imagelinkform -> pass imagePrompt to facerecognition
     
   //   const button = document.querySelector('button');
   //   button.disabled = true;
   //   button.innerHTML = 'Generating... <span class="spinner">🧠</span>';
   //   //POST request openai API
-  //     fetch('http://localhost:8081/imageURL', {
+  //     fetch('http://localhost:8081/imagePrompt', {
   //       method: 'post',
   //       headers: {'Content-Type': 'application/json'},
   //       body: JSON.stringify({
@@ -117,7 +117,7 @@ class App extends Component {
   //     .then(data => {
   //       //if there's data (not null) + image
   //       if (data && data.image) {
-  //         this.setState({imageURL: data.image});
+  //         this.setState({imagePrompt: data.image});
             
   //           //update entry counter
   //           fetch('http://localhost:8081/image', {
@@ -160,7 +160,7 @@ class App extends Component {
   //dynamically use route -> route is what we give it
 
   render() {
-    // const { isSignedIn, imageURL, route } = is.state;
+    // const { isSignedIn, imagePrompt, route } = is.state;
     return (
       <div className="App">
         <ParticlesBg className='particles' num={100} type="cobweb" bg={true} />
@@ -170,7 +170,7 @@ class App extends Component {
               <Logo />
               <Rank name={this.state.user.name} entries={this.state.user.entries}/>
               <ImageLinkForm onInputChange={this.onInputChange} onButtonSubmit={this.onButtonSubmit}/>
-              <ImageArea imageURL={this.state.imageURL}/> 
+              <ImageArea imagePrompt={this.state.imagePrompt}/> 
             </div>
           : (
             this.state.route === 'signin'
