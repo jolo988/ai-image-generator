@@ -9,14 +9,7 @@ import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
 import './App.css';
 
-/*
-1) create frontend component (including inputs)
-2) style components
-3) create/test frontend onRouteChange to capture data (Class/routes)
-4) load data to app (frontend)
-5) Connect to backend server
-6) load user + route change home
-*/
+
 
 //Set initial state for home page
 const initialState = {
@@ -51,8 +44,6 @@ class App extends Component {
     }})
   }
 
-  //property of App: receive an event when input changes
-  //get value from user input (event.target.value)
   //pass funct to imagelinkform INPUT
   onInputChange = (event) => {
     this.setState({input:event.target.value});
@@ -68,7 +59,7 @@ class App extends Component {
 
     //POST request openai API
     try {
-      const response = await fetch('http://localhost:8081/imagePrompt', {
+      const response = await fetch('https://serene-reef-65041.herokuapp.com/imagePrompt', {
         method: 'post',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -80,7 +71,7 @@ class App extends Component {
 
       if(data && data.image) {
         this.setState({imagePrompt: data.image});
-        const updateResponse = await fetch('http://localhost:8081/image', {
+        const updateResponse = await fetch('https://serene-reef-65041.herokuapp.com/image', {
           method: 'put',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
@@ -106,7 +97,7 @@ class App extends Component {
   //   button.disabled = true;
   //   button.innerHTML = 'Generating... <span class="spinner">🧠</span>';
   //   //POST request openai API
-  //     fetch('http://localhost:8081/imagePrompt', {
+  //     fetch('https://serene-reef-65041.herokuapp.com/imagePrompt', {
   //       method: 'post',
   //       headers: {'Content-Type': 'application/json'},
   //       body: JSON.stringify({
@@ -120,7 +111,7 @@ class App extends Component {
   //         this.setState({imagePrompt: data.image});
             
   //           //update entry counter
-  //           fetch('http://localhost:8081/image', {
+  //           fetch('https://serene-reef-65041.herokuapp.com/image', {
   //             method: 'put',
   //             headers: {'Content-Type': 'application/json'},
   //             body: JSON.stringify({
@@ -145,7 +136,6 @@ class App extends Component {
   //       button.innerHTML = 'Generate';
   //       });
   // }
-
 
 
   onRouteChange = (route) => {
