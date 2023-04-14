@@ -9,8 +9,6 @@ import Signin from './components/Signin/Signin';
 import Register from './components/Register/Register';
 import './App.css';
 
-
-
 //Set initial state for home page
 const initialState = {
   input: '',//what the user will input
