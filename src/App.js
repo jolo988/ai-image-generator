@@ -88,53 +88,6 @@ class App extends Component {
     button.disabled = false;
     button.innerHTML = 'Generate';
   }
-  // onButtonSubmit = () => {
-  //   this.setState({imagePrompt: this.state.input});//update imagePrompt variable w/ input from imagelinkform -> pass imagePrompt to facerecognition
-    
-  //   const button = document.querySelector('button');
-  //   button.disabled = true;
-  //   button.innerHTML = 'Generating... <span class="spinner">🧠</span>';
-  //   //POST request openai API
-  //     fetch('https://serene-reef-65041.herokuapp.com/imagePrompt', {
-  //       method: 'post',
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: JSON.stringify({
-  //         input: this.state.input
-  //       })
-  //     })
-  //     .then(response => response.json())
-  //     .then(data => {
-  //       //if there's data (not null) + image
-  //       if (data && data.image) {
-  //         this.setState({imagePrompt: data.image});
-            
-  //           //update entry counter
-  //           fetch('https://serene-reef-65041.herokuapp.com/image', {
-  //             method: 'put',
-  //             headers: {'Content-Type': 'application/json'},
-  //             body: JSON.stringify({
-  //               id: this.state.user.id
-  //             })
-  //           })
-  //           .then(response => response.json())
-  //           .then(count => {
-  //             this.setState(Object.assign(this.state.user, { entries: count }));
-  //             button.disabled = false;
-  //             button.innerHTML = 'Generate';
-  //           })
-  //           .catch((err) => console.log('Error updating count:', err));
-  //         } else {
-  //           console.log('Error loading image:', data);
-  //           button.disabled = false;
-  //           button.innerHTML = 'Generate';
-  //         }
-  //       })
-  //       .catch((err) => {console.log('Error loading image:', err)
-  //       button.disabled = false;
-  //       button.innerHTML = 'Generate';
-  //       });
-  // }
-
 
   onRouteChange = (route) => {
     if (route === 'signout') {
