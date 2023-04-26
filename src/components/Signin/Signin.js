@@ -43,8 +43,6 @@ class Signin extends React.Component {
             })
         
     }
-    //NEED TO PUT ERROR MESSAGE TO SIGN IN at some point**
-
 
     //Sign in page form:
     //Fields: email, password
